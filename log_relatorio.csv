@@ -1,0 +1,31 @@
+data_execucao,data_consolidada,inicio,fim,status,mensagem,registros
+2026-10-25,2026-10-24,02:30,02:50,OK,consolidacao concluida,1218
+2026-10-26,2026-10-25,02:30,02:50,OK,consolidacao concluida,1255
+2026-10-27,2026-10-26,02:30,02:50,OK,consolidacao concluida,1292
+2026-10-28,2026-10-27,02:30,02:50,OK,consolidacao concluida,1329
+2026-10-29,2026-10-28,02:30,02:50,OK,consolidacao concluida,1106
+2026-10-30,2026-10-29,02:30,02:50,OK,consolidacao concluida,1143
+2026-10-31,2026-10-30,02:30,02:50,OK,consolidacao concluida,1180
+2026-11-01,2026-10-31,02:30,02:50,OK,consolidacao concluida,1217
+2026-11-02,2026-11-01,02:30,02:50,OK,consolidacao concluida,1254
+2026-11-03,2026-11-02,02:30,02:50,OK,consolidacao concluida,1291
+2026-11-04,2026-11-03,02:30,02:50,OK,consolidacao concluida,1328
+2026-11-05,2026-11-04,02:30,02:50,OK,consolidacao concluida,1105
+2026-11-06,2026-11-05,02:30,02:50,OK,consolidacao concluida,1142
+2026-11-07,2026-11-06,02:30,02:50,OK,consolidacao concluida,1179
+2026-11-08,2026-11-07,02:30,03:00,FALHA,LOCK_TIMEOUT: aguardando bloqueio em vendas_consolidadas (1800s),0
+2026-11-09,2026-11-08,02:30,02:50,OK,consolidacao concluida,1253
+2026-11-10,2026-11-09,02:30,02:50,OK,consolidacao concluida,1290
+2026-11-11,2026-11-10,02:30,02:50,OK,consolidacao concluida,1327
+2026-11-12,2026-11-11,02:30,02:50,OK,consolidacao concluida,1104
+2026-11-13,2026-11-12,02:30,02:50,OK,consolidacao concluida,1141
+2026-11-14,2026-11-13,02:30,02:50,OK,consolidacao concluida,1178
+2026-11-15,2026-11-14,02:30,03:00,FALHA,LOCK_TIMEOUT: aguardando bloqueio em vendas_consolidadas (1800s),0
+2026-11-16,2026-11-15,02:30,02:50,OK,consolidacao concluida,1252
+2026-11-17,2026-11-16,02:30,02:50,OK,consolidacao concluida,1289
+2026-11-18,2026-11-17,02:30,02:50,OK,consolidacao concluida,1326
+2026-11-19,2026-11-18,02:30,02:50,OK,consolidacao concluida,1103
+2026-11-20,2026-11-19,02:30,02:50,OK,consolidacao concluida,1140
+2026-11-21,2026-11-20,02:30,02:50,OK,consolidacao concluida,1177
+2026-11-22,2026-11-21,02:30,03:00,FALHA,LOCK_TIMEOUT: aguardando bloqueio em vendas_consolidadas (1800s),0
+2026-11-23,2026-11-22,02:30,02:50,OK,consolidacao concluida,1251
