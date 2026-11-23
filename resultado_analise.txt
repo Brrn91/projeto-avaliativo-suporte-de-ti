@@ -1,0 +1,11 @@
+data       backup    fim_bkp verif sobrep_min job   dado_consolidado
+2026-10-25 completo  02:20   nao   0          OK    2026-10-24
+2026-11-01 completo  02:20   nao   0          OK    2026-10-31
+2026-11-08 completo  03:15   sim   45         FALHA 2026-11-07
+2026-11-15 completo  03:15   sim   45         FALHA 2026-11-14
+2026-11-22 completo  03:15   sim   45         FALHA 2026-11-21
+
+Execucoes analisadas: 30 | falhas: 3 | falhas por dia da semana: {'dom': 3}
+Domingos antes da mudanca: 2 (falhas: 0)
+Domingos depois da mudanca: 3 (falhas: 3)
+Datas sem consolidacao: ['2026-11-07', '2026-11-14', '2026-11-21']
