@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atendimento - SCTEC</title>
+<style>
+:root{--g:#7ab82e;--gd:#4f8f1a;--r:#e3262d;--k:#0b0f0c;--t:#1f2733;--m:#667085;--w:#fff;--bg:#f3f5f9;--b:#e6e8ee;--fs:1}
+*{box-sizing:border-box}
+body{margin:0;display:flex;flex-direction:column;height:100vh;font:calc(15px*var(--fs))/1.45 Inter,system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--t);background:var(--bg)}
+header{background:var(--k);color:#fff;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px}
+.brand{background:#fff;color:var(--t);font-weight:800;font-size:1.25em;padding:2px 10px;border-radius:8px}
+.brand .s{color:var(--g)}.brand .c{color:var(--r)}
+.sp{flex:1}
+button{font:inherit;border:0;border-radius:8px;padding:7px 11px;background:var(--g);color:var(--k);font-weight:600;cursor:pointer}
+button:hover{background:var(--gd);color:#fff}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #ffbf00;outline-offset:2px}
+header button{font-size:.85em;padding:6px 9px}
+#av{background:#fff6b3;padding:0 16px;font-size:.9em}#av:not(:empty){padding:6px 16px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;padding:16px}
+.card{background:#fff;border:1px solid var(--b);border-radius:14px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#chat{flex:1;overflow:auto;padding:14px}
+.msg{max-width:85%;padding:9px 12px;border-radius:14px;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.a{background:#eef6e2;border:1px solid #d5e8b8}
+.msg.c{background:#e8edf5;margin-left:auto}
+#chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px}
+.chip{background:#fff;border:1px solid var(--g);color:var(--gd);text-align:left}
+#f{display:flex;gap:8px;padding:12px;border-top:1px solid var(--b)}
+input[type=text],textarea{flex:1;font:inherit;border:1px solid #cfd4dc;border-radius:8px;padding:8px;width:100%}
+.tabs{display:flex;gap:6px;padding:10px;border-bottom:1px solid var(--b)}
+.tabs button{background:#fff;color:var(--t);border:1px solid var(--b)}
+.tabs button.on{background:var(--g);color:var(--k)}
+.pane{display:none;flex:1;overflow:auto;padding:14px}.pane.on{display:block}
+.q{border:1px solid var(--b);border-radius:10px;padding:8px;margin:6px 0}
+.q small{display:block;color:var(--m)}
+.q.div{border-color:var(--r)}.q.apoia,.q.veio{border-color:var(--g)}
+.bar{height:10px;background:var(--b);border-radius:6px;margin:6px 0}
+.bar i{display:block;height:100%;background:var(--g);border-radius:6px}
+.fl{border-left:4px solid var(--b);padding:4px 8px;margin:5px 0}
+.fl.ok{border-color:var(--g)}.fl.cur{background:#fff6b3;border-color:#e0b400}
+.fl small{display:block;color:var(--m)}
+#mt{display:none;gap:8px;padding:8px 16px 0}
+#pv{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+#pv>div{background:#fff;border-radius:14px;padding:16px;max-width:640px;width:100%;max-height:90vh;overflow:auto}
+#pv label{display:block;margin:8px 0 2px;font-weight:600;font-size:.9em}
+#rel{display:none}
+@media(max-width:800px){body{height:auto;min-height:100vh}main{grid-template-columns:1fr;padding:16px}#mt{display:flex}main[data-v=c] aside,main[data-v=p] section{display:none}#chat{min-height:55vh}}
+@media print{body{display:block;height:auto;background:#fff;font-size:10.5pt}header,main,#mt,#av,#pv{display:none!important}#rel{display:block}@page{size:A4;margin:14mm}.pg{page-break-after:always}.pg:last-of-type{page-break-after:auto}table{border-collapse:collapse;width:100%;margin:6px 0}td,th{border:1px solid #999;padding:4px;vertical-align:top;font-size:9.5pt;text-align:left}h2,h3{margin:10px 0 4px}}
+</style></head><body>
+<header>
+<span class="brand"><span class="s">S</span><span class="c">C</span>TEC</span><strong id="an">Atendimento - SCTEC</strong><span class="sp"></span>
+<button id="bN" aria-label="Novo atendimento">🆕 Novo atendimento</button><button id="bP" aria-label="Gerar PDF">📄 Gerar PDF</button>
+<button id="bB" aria-label="Backup do conhecimento">💾 Backup do conhecimento</button><button id="bR" aria-label="Restaurar backup">♻️ Restaurar backup</button>
+<button id="bU" aria-label="Atualizar conhecimento">📥 Atualizar conhecimento</button>
+<button id="fm" aria-label="Diminuir texto">A−</button><button id="fp" aria-label="Aumentar texto">A+</button>
+</header>
+<div id="av" role="status"></div>
+<div id="mt"><button data-v="c">Conversa</button><button data-v="p">Ficha</button></div>
+<main id="main" data-v="c">
+<section class="card"><div id="chat" role="log" aria-live="polite"></div><div id="chips"></div>
+<form id="f"><input type="text" id="tx" aria-label="Sua mensagem" autocomplete="off" placeholder="Digite aqui ou toque numa sugestão"><button aria-label="Enviar">Enviar</button></form></section>
+<aside class="card"><div class="tabs"><button data-p="p1" class="on">Raciocínio</button><button data-p="p2">Ficha</button><button data-p="p3">Conhecimento</button></div>
+<div id="p1" class="pane on"></div><div id="p2" class="pane"></div><div id="p3" class="pane"></div></aside>
+</main>
+<div id="pv"><div id="pvc"></div></div><div id="rel"></div>
+<input type="file" id="fr" accept=".json" hidden><input type="file" id="fu" accept=".pdf,.txt,.md,.json" hidden>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const CONHECIMENTO_INICIAL={
+ "formato": "agente-suporte-ti/conhecimento",
+ "versao_formato": 1,
+ "atualizado_em": "2026-11-23T12:00:00-03:00",
+ "casos": [
+  {
+   "id": "INC-0533",
+   "versao": 1,
+   "origem": "Relatório de atendimento Atend03 — Suporte de TI [T1], Aula 1 (emitido em 16/11/2026 19:58)",
+   "titulo": "Computador não acessa o sistema financeiro",
+   "servico": "FinanceiroWeb — sistema de controle financeiro (acesso pelo navegador) • Computador PC-FIN-07",
+   "tipo": "Incidente",
+   "categoria": "Acesso / rede",
+   "prioridade": "P3 — Média, com prazo hoje anotado no chamado",
+   "justificativa_prioridade": "Impacto baixo (só um computador afetado) e urgência alta (pagamentos de fornecedores vencem hoje).",
+   "sintoma": "O sistema financeiro não abre em um computador (“Não é possível acessar esse site”); internet e e-mail funcionam.",
+   "palavras_chave": [
+    "financeiro",
+    "sistema financeiro",
+    "pagamento",
+    "pagamentos",
+    "fornecedores",
+    "não consigo entrar",
+    "não consigo acessar",
+    "não é possível acessar esse site",
+    "site não abre",
+    "computador novo"
+   ],
+   "perguntas_chave": [
+    {
+     "campo": "abrangencia",
+     "rotulo": "Abrangência",
+     "pergunta": "Seus colegas conseguem entrar normalmente no sistema financeiro?",
+     "por_que": "Se só você não entra, o problema está no seu computador ou na sua conta — não no sistema.",
+     "resposta_tipica": "Conseguem, só eu que não.",
+     "sinais_que_confirmam": [
+      "conseguem",
+      "só eu",
+      "apenas eu",
+      "só comigo",
+      "eles entram"
+     ],
+     "sinais_que_contradizem": [
+      "ninguém",
+      "não conseguem",
+      "todos sem acesso",
+      "ninguém consegue"
+     ]
+    },
+    {
+     "campo": "comparacao",
+     "rotulo": "Teste de comparação",
+     "pergunta": "Se você entrar com o seu login no computador de um colega, o sistema abre?",
+     "por_que": "Mesma pessoa e mesma senha em outro computador: se abrir, senha e sistema estão OK e o problema é o seu computador.",
+     "resposta_tipica": "Abre sim, no computador do colega funciona.",
+     "sinais_que_confirmam": [
+      "abre",
+      "funciona",
+      "consegui",
+      "entra",
+      "sim"
+     ],
+     "sinais_que_contradizem": [
+      "não abre",
+      "também não",
+      "não funciona",
+      "mesmo erro"
+     ]
+    },
+    {
+     "campo": "mudanca",
+     "rotulo": "Mudança recente",
+     "pergunta": "Mudou alguma coisa no seu computador recentemente?",
+     "por_que": "Computador novo ou reconfigurado é suspeita forte de configuração de rede.",
+     "resposta_tipica": "Sim, trocaram meu computador por um novo hoje de manhã.",
+     "sinais_que_confirmam": [
+      "trocaram",
+      "novo",
+      "formataram",
+      "reinstalaram",
+      "configuraram",
+      "chegou"
+     ],
+     "sinais_que_contradizem": [
+      "mesmo de sempre",
+      "não mudou nada",
+      "nada mudou"
+     ]
+    },
+    {
+     "campo": "outros_sistemas",
+     "rotulo": "Outros sistemas",
+     "pergunta": "A internet e os outros sistemas funcionam normalmente no seu computador?",
+     "por_que": "Se a internet funciona mas um sistema interno não, a suspeita recai sobre a tradução de nomes internos (DNS).",
+     "resposta_tipica": "Sim, a internet e o e-mail funcionam.",
+     "sinais_que_confirmam": [
+      "funcionam",
+      "funciona",
+      "internet ok",
+      "e-mail funciona",
+      "sim"
+     ],
+     "sinais_que_contradizem": [
+      "nada funciona",
+      "sem internet",
+      "internet caiu"
+     ]
+    }
+   ],
+   "pergunta_impacto": "Qual é o impacto se isso não for resolvido hoje?",
+   "hipotese_n1": "Senha e sistema estão OK; o problema está na configuração de rede do computador (provável DNS: o computador não encontra o sistema pelo nome).",
+   "contorno": "Combinar com o gestor um computador reserva, onde o usuário entra com o próprio login para lançar os pagamentos. Nunca usar a senha de um colega.",
+   "encaminhar_para": "N2 — Redes e estações de trabalho",
+   "proxima_verificacao": "Testar o acesso pelo nome e pelo número do servidor (ping/nslookup) e conferir a configuração de rede do computador.",
+   "causa_raiz": "Configuração de rede — computadores novos preparados com DNS fixo da internet (8.8.8.8), que não conhece os nomes internos da empresa.",
+   "solucao": "Configuração de rede voltou para automática (DHCP) nos 12 computadores novos, memória de nomes (cache DNS) limpa e imagem padrão de instalação corrigida.",
+   "validacao": "Usuário acessou o FinanceiroWeb no próprio computador e conferiu os pagamentos. Chamado encerrado às 16:00, dentro do prazo.",
+   "status_final": "Encerrado — usuário confirmou o acesso no próprio computador",
+   "artigo_kb": "Sistema interno não abre em computador novo — DNS fixo na imagem padrão (voltar para DHCP). Equipe de preparação de computadores avisada.",
+   "evidencias": [
+    "> ping financeiro.empresa.local → A solicitação ping não pôde encontrar o host.",
+    "> ping 10.20.1.15 (número do servidor financeiro) → Resposta em 1–2 ms.",
+    "Configuração do PC-FIN-07: DHCP desligado e DNS fixo 8.8.8.8."
+   ],
+   "linha_do_tempo": [
+    {
+     "nivel": "N1",
+     "hora": "14:05",
+     "acao": "Ouvir até o fim, reconhecer o prazo de hoje, registrar o chamado e começar a verificar.",
+     "registro": "N1 acolheu o usuário e registrou o prazo: pagamentos de fornecedores precisam ser lançados hoje."
+    },
+    {
+     "nivel": "N1",
+     "hora": "14:08",
+     "acao": "Perguntar o que aparece na tela, se outros sites e sistemas funcionam e se os colegas conseguem entrar.",
+     "registro": "Mensagem “Não é possível acessar esse site”; internet e e-mail OK; colegas acessam; começou após a troca do computador."
+    },
+    {
+     "nivel": "N1",
+     "hora": "14:12",
+     "acao": "Concluir que senha e sistema estão OK e que o problema está no computador dele.",
+     "registro": "Mesmo erro em outro navegador; login funciona em outro computador → problema no computador novo (PC-FIN-07)."
+    },
+    {
+     "nivel": "N1",
+     "hora": "14:15",
+     "acao": "Registrar: “FinanceiroWeb não abre no PC-FIN-07” • Incidente • Prioridade Média (P3), com prazo anotado.",
+     "registro": "Chamado INC-0533 aberto — Incidente • P3 • prazo hoje • PC-FIN-07."
+    },
+    {
+     "nivel": "N1",
+     "hora": "14:18",
+     "acao": "Combinar computador reserva com o próprio login e escalar ao N2 com handoff completo.",
+     "registro": "Contorno N1: pagamentos em computador reserva. Handoff N1 → N2: falha só no PC-FIN-07, novo, entregue hoje; senha OK."
+    },
+    {
+     "nivel": "N2",
+     "hora": "14:35",
+     "acao": "Testar por nome e por número: o computador alcança o servidor pelo número, mas não pelo nome. Suspeita: DNS.",
+     "registro": "Servidor responde pelo número (10.20.1.15); nome financeiro.empresa.local não é encontrado."
+    },
+    {
+     "nivel": "N2",
+     "hora": "14:40",
+     "acao": "Registrar a configuração atual antes de qualquer alteração.",
+     "registro": "Configuração de rede do PC-FIN-07 registrada."
+    },
+    {
+     "nivel": "N2",
+     "hora": "14:45",
+     "acao": "Informar o usuário: a causa está no computador novo; manter o contorno; retorno até 16h.",
+     "registro": "Usuário informado; contorno mantido; retorno até as 16h."
+    },
+    {
+     "nivel": "N2",
+     "hora": "14:55",
+     "acao": "Escalar ao N3 (redes): o problema pode estar no lote inteiro de computadores novos.",
+     "registro": "PC-FIN-07 pertence a um lote de 12 computadores novos → escalado ao N3."
+    },
+    {
+     "nivel": "N3",
+     "hora": "15:10",
+     "acao": "Ler a configuração: DHCP desligado e DNS 8.8.8.8 (DNS da internet).",
+     "registro": "Nomes internos da empresa não são encontrados."
+    },
+    {
+     "nivel": "N3",
+     "hora": "15:25",
+     "acao": "Identificar a causa raiz: a imagem padrão (molde) veio com DNS fixo da internet.",
+     "registro": "Causa raiz: CONFIGURAÇÃO — afeta os 12 computadores do lote."
+    },
+    {
+     "nivel": "N3",
+     "hora": "15:35",
+     "acao": "Voltar a rede para automática (DHCP), limpar o cache DNS e corrigir o molde.",
+     "registro": "Correção definitiva definida."
+    },
+    {
+     "nivel": "N3",
+     "hora": "15:50",
+     "acao": "Aprovar a mudança, aplicar primeiro no PC-FIN-07, testar e depois aplicar nos outros 11.",
+     "registro": "Mudança aprovada; correção aplicada e conferida nos 12 computadores."
+    },
+    {
+     "nivel": "Solução",
+     "hora": "16:00",
+     "acao": "Pedir que o usuário confirme no próprio computador e só então encerrar.",
+     "registro": "Usuário confirmou; chamado encerrado às 16:00, dentro do prazo."
+    },
+    {
+     "nivel": "Solução",
+     "hora": "16:15",
+     "acao": "Criar artigo na base de conhecimento e avisar a equipe que prepara computadores.",
+     "registro": "Artigo criado: DNS fixo na imagem padrão (voltar para DHCP)."
+    }
+   ],
+   "sintese_niveis": [
+    {
+     "nivel": "N1",
+     "competencia": "Escuta e testes de comparação",
+     "acao": "Prova que senha e sistema funcionam e arruma um computador reserva",
+     "resultado": "O usuário cumpre o prazo; o caso chega claro ao N2"
+    },
+    {
+     "nivel": "N2",
+     "competencia": "Teste por nome x por número",
+     "acao": "Identifica a suspeita de DNS e percebe que pode afetar o lote todo",
+     "resultado": "Evidências guardadas e escopo ampliado"
+    },
+    {
+     "nivel": "N3",
+     "competencia": "Análise da configuração",
+     "acao": "Encontra o DNS fixo da internet na imagem padrão e corrige",
+     "resultado": "Correção definitiva nos 12 computadores e na origem"
+    }
+   ]
+  },
+  {
+   "id": "INC-2026-1123-001",
+   "versao": 1,
+   "origem": "Projeto Avaliativo — Suporte de TI [T1], caso fictício (atendimento de 23/11/2026; dados sintéticos)",
+   "titulo": "Relatório diário de vendas com dados de sábado ausentes",
+   "servico": "Relatório Diário de Vendas (RDV) — Sistema Comercial (consulta pela equipe comercial por volta das 08h)",
+   "tipo": "Incidente",
+   "categoria": "Aplicação / rotina agendada",
+   "prioridade": "P3 — Média",
+   "justificativa_prioridade": "Impacto médio (equipe comercial com dado defasado, sem parada de operação nem perda de pedidos) e urgência média (a falha se repete todo domingo; próxima em 29/11).",
+   "sintoma": "O relatório diário de vendas mostra todos os dias, menos o sábado, e isso se repete nas segundas-feiras.",
+   "palavras_chave": [
+    "relatório",
+    "relatorio diário",
+    "relatório de vendas",
+    "relatório diário",
+    "vendas de sábado",
+    "dados de sábado",
+    "sábado",
+    "dados faltando",
+    "dados ausentes",
+    "falta um dia",
+    "sem os dados",
+    "números baixos",
+    "dados desatualizados",
+    "rdv"
+   ],
+   "perguntas_chave": [
+    {
+     "campo": "abrangencia",
+     "rotulo": "Abrangência",
+     "pergunta": "Seus colegas também veem o sábado faltando no relatório?",
+     "por_que": "Se todos veem a lacuna, o dado não foi consolidado; se só você vê, o problema é na sua tela ou no seu acesso.",
+     "resposta_tipica": "Sim, a equipe toda vê o sábado faltando.",
+     "sinais_que_confirmam": [
+      "todos",
+      "equipe",
+      "colegas também",
+      "também veem",
+      "sim"
+     ],
+     "sinais_que_contradizem": [
+      "só eu",
+      "apenas eu",
+      "só comigo",
+      "só no meu"
+     ]
+    },
+    {
+     "campo": "padrao",
+     "rotulo": "Padrão do problema",
+     "pergunta": "Falta só o sábado, ou também outros dias? E isso já aconteceu em outras semanas?",
+     "por_que": "Lacuna sempre no mesmo dia aponta para uma rotina semanal; dias aleatórios apontariam para outra causa.",
+     "resposta_tipica": "Só o sábado, e nas últimas semanas também.",
+     "sinais_que_confirmam": [
+      "só o sábado",
+      "sábado",
+      "semanas",
+      "toda semana",
+      "outras segundas",
+      "outras semanas"
+     ],
+     "sinais_que_contradizem": [
+      "dias diferentes",
+      "varia",
+      "aleatório",
+      "só hoje",
+      "primeira vez"
+     ]
+    },
+    {
+     "campo": "cache",
+     "rotulo": "Teste de exibição",
+     "pergunta": "Se você atualizar a página, limpar o cache ou abrir em outro navegador, o sábado aparece?",
+     "por_que": "Descarta falha de exibição antes de suspeitar do dado.",
+     "resposta_tipica": "Não, continua sem o sábado.",
+     "sinais_que_confirmam": [
+      "continua",
+      "mesmo resultado",
+      "segue igual",
+      "não muda",
+      "nada mudou"
+     ],
+     "sinais_que_contradizem": [
+      "agora aparece",
+      "apareceu",
+      "sim aparece",
+      "aparece sim"
+     ]
+    },
+    {
+     "campo": "inicio",
+     "rotulo": "Quando começou",
+     "pergunta": "Você lembra desde quando isso acontece?",
+     "por_que": "Ligar o início do problema a uma mudança recente (por exemplo, no backup) ajuda o N2 a achar a causa.",
+     "resposta_tipica": "Começou há umas três semanas.",
+     "sinais_que_confirmam": [
+      "semanas",
+      "começou",
+      "desde",
+      "depois",
+      "três semanas",
+      "3 semanas",
+      "novembro"
+     ],
+     "sinais_que_contradizem": [
+      "sempre foi assim",
+      "desde sempre",
+      "nunca funcionou"
+     ]
+    }
+   ],
+   "pergunta_impacto": "Isso atrapalha algum fechamento ou reunião desta semana?",
+   "hipotese_n1": "Os dados de sábado não foram consolidados pelo relatório, e a falha parece se repetir aos domingos de madrugada (suspeita de conflito com outra rotina, como o backup). O N1 não acessa os registros do agendador; a confirmação é do N2.",
+   "contorno": "Orientar o cliente a não refazer nem corrigir o relatório. Se precisar do total de sábado hoje, consultar a tela de vendas do dia, só para leitura, enquanto o N2 reprocessa o relatório.",
+   "encaminhar_para": "N2 — Operações e agendamento de rotinas",
+   "proxima_verificacao": "Ler o registro do agendador e o do backup de domingo, procurar LOCK_TIMEOUT e conferir mudanças recentes no backup.",
+   "causa_raiz": "Sobreposição entre o backup completo de domingo (alongado pela verificação de integridade ativada em 05/11, CHG-0457) e o job do relatório às 02h30: o job espera 30 min pelo bloqueio, expira e não tenta de novo. Confiança alta, não conclusiva (sem reprodução em homologação).",
+   "solucao": "Contorno: reexecutar o job para 07/11, 14/11 e 21/11 fora da janela de backup (POP-RDV-01). Correção proposta: job às 04h00, retentativa (3 vezes, 30 min) e alerta para a fila N2, na janela de 25/11, 22h.",
+   "validacao": "Contorno validado pela usuária em 23/11, 11h00 (simulado). Correção a validar no domingo 29/11 (proposto).",
+   "status_final": "Contorno aplicado (simulado); correção definitiva proposta",
+   "artigo_kb": "KB-RDV-001 — Relatório diário com um dia faltando: ver se a lacuna segue um dia fixo, escalar ao N2 sem reiniciar nada, procurar LOCK_TIMEOUT no registro do job e comparar com a janela do backup; contorno: reexecutar fora da janela do backup.",
+   "evidencias": [
+    "log_relatorio.csv (sintético) 22/11: FALHA — LOCK_TIMEOUT: aguardando bloqueio em vendas_consolidadas (1800s).",
+    "log_backup.csv (sintético) 22/11: backup completo 01:00–03:15 com verificação de integridade; job iniciou às 02:30 (sobreposição de 45 min).",
+    "Domingos antes de 05/11: sobreposição 0 e job OK; depois: 3 de 3 domingos com falha."
+   ],
+   "linha_do_tempo": [
+    {
+     "nivel": "N1",
+     "hora": "08:40",
+     "acao": "Registrar o chamado e classificar como P3 (impacto médio, urgência média).",
+     "registro": "INC-2026-1123-001 aberto: vendas de sábado ausentes no relatório."
+    },
+    {
+     "nivel": "N1",
+     "hora": "08:55",
+     "acao": "Pedir que o cliente limpe o cache e use outro navegador.",
+     "registro": "Mesmo resultado: descartada falha de exibição."
+    },
+    {
+     "nivel": "N1",
+     "hora": "09:05",
+     "acao": "Levantar as datas faltantes nas últimas semanas.",
+     "registro": "Só sábados (07/11, 14/11, 21/11); nada antes de 07/11."
+    },
+    {
+     "nivel": "N1",
+     "hora": "09:15",
+     "acao": "Escalar ao N2 com handoff completo, sem tocar em servidores.",
+     "registro": "N1 não acessa registros do agendador; suspeita de falha do job de domingo."
+    },
+    {
+     "nivel": "N2",
+     "hora": "09:40",
+     "acao": "Ler o registro do agendador.",
+     "registro": "LOCK_TIMEOUT só aos domingos, 03h00."
+    },
+    {
+     "nivel": "N2",
+     "hora": "10:05",
+     "acao": "Comparar com a janela do backup.",
+     "registro": "Backup de domingo termina às 03h15, depois do início do job."
+    },
+    {
+     "nivel": "N2",
+     "hora": "10:20",
+     "acao": "Consultar o histórico de mudanças.",
+     "registro": "CHG-0457 (05/11) coincide com o início das falhas."
+    },
+    {
+     "nivel": "N2",
+     "hora": "10:35",
+     "acao": "Reexecutar o job para as 3 datas fora da janela do backup (POP-RDV-01).",
+     "registro": "Dados consolidados (contorno)."
+    },
+    {
+     "nivel": "Solução",
+     "hora": "11:00",
+     "acao": "Pedir que o cliente confira o relatório antes de encerrar o contorno.",
+     "registro": "Sábados presentes; contorno aceito."
+    },
+    {
+     "nivel": "Solução",
+     "hora": "11:20",
+     "acao": "Abrir mudança para a janela de quarta, 25/11, 22h.",
+     "registro": "Aguardando aprovação do coordenador de infraestrutura."
+    }
+   ],
+   "sintese_niveis": [
+    {
+     "nivel": "N1",
+     "competencia": "Escuta e testes de exclusão",
+     "acao": "Descarta tela e cache, descobre o padrão de sábados e escala sem agir fora da alçada",
+     "resultado": "Caso chega claro ao N2"
+    },
+    {
+     "nivel": "N2",
+     "competencia": "Correlação de registros",
+     "acao": "Cruza o job com o backup e a mudança recente; reexecuta o job pelo POP",
+     "resultado": "Dados repostos e causa provável com confiança alta"
+    },
+    {
+     "nivel": "N3",
+     "competencia": "Não acionado",
+     "acao": "Seria necessário se a falha persistisse fora da janela do backup",
+     "resultado": "Não se aplica neste caso"
+    }
+   ]
+  }
+ ]
+};
+const CHAVE='agente_conhecimento_v1',AGENTE='Atendimento - SCTEC',ALUNO='Lucas Bruno da Costa Mafra',MENTOR='Thiago F. de Souza Areco';
+const $=s=>document.querySelector(s);
+const el=(t,x,c)=>{const e=document.createElement(t);if(x!=null)e.textContent=x;if(c)e.className=c;return e};
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const pad=s=>' '+norm(s).replace(/[^a-z0-9]+/g,' ').trim()+' ';
+const has=(t,l)=>(l||[]).some(x=>pad(t).includes(pad(x)));
+const valid=c=>c&&c.id&&c.titulo&&Array.isArray(c.palavras_chave)&&Array.isArray(c.perguntas_chave)&&c.hipotese_n1;
+const PRAZO=/\b(hoje|prazo|reuniao|urgente|horario|amanha|vence|vencem)\b/;
+const ST={aguardando:'aguardando',perguntando:'perguntando…',veio:'↷ já veio no relato',apoia:'✓ apoia',div:'⚠ diverge',nao:'? não confirmado'};
+const FIC=[['nome','Cliente'],['contato','Setor / contato'],['relato','Relato'],['chamado','Chamado'],['servico','Serviço'],['tipo','Tipo'],['categoria','Categoria'],['prioridade','Prioridade'],['justificativa','Justificativa'],['hipotese','Hipótese N1'],['confianca','Confiança'],['contorno','Contorno'],['encaminhar','Encaminhar para'],['proxima_verificacao','Próxima verificação'],['proxima_atualizacao','Próxima atualização']];
+const CUR={nome:'nome',contato:'contato',relato:'relato',tri:'relato',perg:'hipotese',imp:'prioridade',conf:'hipotese',corr:'hipotese'};
+let KB,S,ATEND=[];
+const aviso=t=>{$('#av').textContent=t||''};
+function carregar(){let o=null;try{o=JSON.parse(localStorage.getItem(CHAVE))}catch(e){}
+ const b=(o&&Array.isArray(o.casos)&&o.casos.some(valid))?o:CONHECIMENTO_INICIAL;
+ KB={...b,casos:b.casos.filter(valid)};const inv=b.casos.length-KB.casos.length;if(inv)aviso(inv+' caso(s) inválido(s) ignorado(s) na base.');
+ CONHECIMENTO_INICIAL.casos.forEach(c=>{if(!KB.casos.some(x=>x.id===c.id))KB.casos.push(c)})}
+function salvar(){try{localStorage.setItem(CHAVE,JSON.stringify(KB))}catch(e){}}
+function mesclar(l){let n=0;l.filter(valid).forEach(c=>{const i=KB.casos.findIndex(x=>x.id===c.id);
+ if(i<0){KB.casos.push(c);n++}else if((c.versao||1)>(KB.casos[i].versao||1)){KB.casos[i]=c;n++}});
+ KB.atualizado_em=new Date().toISOString();salvar();return n}
+function limpar(t){let hit=false;const R='[informação sensível removida]';
+ const f=r=>{t=t.replace(r,()=>{hit=true;return R})};
+ f(/(senha|password|token|c[oó]digo(?:\s+de\s+(?:verifica[cç][aã]o|recupera[cç][aã]o))?)\s*(?:é|e|eh|:|=)?\s*\S+/gi);
+ f(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g);return{t,hit}}
+function novo(){S={step:'nome',f:{},caso:null,r:[],n:0,tri:0,impDone:false,aten:[]};$('#chat').replaceChildren();chips([]);
+ say('a','Olá! Eu sou o atendente do Service Desk (N1) e você faz o papel do cliente. Para começar, qual é o seu nome?');render()}
+function say(w,t){$('#chat').append(el('div',t,'msg '+w));$('#chat').scrollTop=1e9}
+function chips(l){const c=$('#chips');c.replaceChildren();l.filter(Boolean).forEach(x=>{const b=el('button',x,'chip');b.type='button';b.onclick=()=>enviar(x);c.append(b)})}
+const pontos=t=>{const n=norm(t);return KB.casos.map(c=>({c,p:c.palavras_chave.reduce((a,k)=>a+(n.includes(norm(k))?(k.includes(' ')?2:1):0),0)})).sort((a,b)=>b.p-a.p)};
+function identificar(t){const r=pontos(t);
+ if(r[0]&&r[0].p>0&&(!r[1]||r[0].p>r[1].p)){S.caso=r[0].c;iniciar()}
+ else{S.step='tri';S.tri++;if(S.tri>2)return generico();say('a','Seu problema é mais parecido com qual destes?');chips(KB.casos.map(c=>c.titulo))}}
+function iniciar(){const c=S.caso;S.f.chamado=c.id;say('a','Entendi: parece ser “'+c.titulo+'”. Vou fazer só as perguntas-chave.');
+ S.r=c.perguntas_chave.map(q=>({st:(has(S.f.relato,q.sinais_que_confirmam)&&!has(S.f.relato,q.sinais_que_contradizem))?'veio':'aguardando',resp:''}));perguntar()}
+function generico(){S.caso={id:'NOVO',titulo:'Caso ainda não catalogado',palavras_chave:[],perguntas_chave:[],generico:true,hipotese_n1:'Não há caso parecido na base; o relato segue ao N2 para análise.',tipo:'Incidente',categoria:'A classificar',prioridade:'P3 — Média (a confirmar)',justificativa_prioridade:'Sem caso na base; classificar com o N2.',contorno:'Aguardar o retorno do atendimento.',encaminhar_para:'N2',proxima_verificacao:'Analisar o relato e criar um caso na base.',causa_raiz:'A apurar',solucao:'A apurar',artigo_kb:'Criar artigo após a resolução.'};
+ S.r=[];say('a','Não encontrei um caso parecido na base. Vou registrar o seu relato e encaminhar ao N2.');antesConcluir()}
+function perguntar(){const i=S.r.findIndex(x=>x.st==='aguardando');if(i<0)return antesConcluir();
+ S.cur=i;S.r[i].st='perguntando';S.n++;S.step='perg';const q=S.caso.perguntas_chave[i];say('a',q.pergunta);chips([q.resposta_tipica,'Não sei'])}
+function antesConcluir(){if(!S.impDone&&S.caso.pergunta_impacto&&!PRAZO.test(norm(S.f.relato))){S.impDone=true;S.step='imp';say('a',S.caso.pergunta_impacto)}else concluir()}
+function conf(){const a=S.r.filter(x=>x.st==='apoia'||x.st==='veio').length,d=S.r.filter(x=>x.st==='div').length;
+ return d>=a?'Baixa':(a===S.r.length&&!d?'Alta':'Média')}
+function concluir(){const c=S.caso;S.conf=conf();S.aten=[];
+ S.r.forEach((x,i)=>{const q=c.perguntas_chave[i];if(x.st==='div')S.aten.push(q.rotulo+': a resposta diverge da suspeita ("'+x.resp+'").');else if(x.st==='nao')S.aten.push(q.rotulo+': não confirmado.')});
+ say('a','Com '+S.n+' perguntas já consigo concluir: '+c.hipotese_n1+'\nConfiança: '+S.conf+'.'+(S.aten.length?'\nPontos de atenção:\n- '+S.aten.join('\n- '):''));
+ say('a','Confere?');S.step='conf';chips(['✓ Confere','✏️ Corrigir uma resposta'])}
+function opcCorr(){S.step='corr';say('a','Qual resposta você quer corrigir?');chips(S.r.map((x,i)=>x.st==='veio'?null:S.caso.perguntas_chave[i].rotulo))}
+function registrar(){const c=S.caso,f=S.f;
+ Object.assign(f,{chamado:c.generico?'CH-'+String(ATEND.length+1).padStart(4,'0'):c.id,servico:c.servico||'—',tipo:c.tipo,categoria:c.categoria,prioridade:c.prioridade,justificativa:c.justificativa_prioridade,hipotese:c.hipotese_n1,confianca:S.conf,contorno:c.contorno,encaminhar:c.encaminhar_para,proxima_verificacao:c.proxima_verificacao,proxima_atualizacao:new Date(Date.now()+18e5).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+ const rows=S.r.map((x,i)=>({q:c.perguntas_chave[i],st:x.st,resp:x.resp}));
+ const msg='Olá, '+f.nome+'. Seu chamado '+f.chamado+' foi registrado ('+f.prioridade+'). Enquanto isso: '+f.contorno+' Retornamos até às '+f.proxima_atualizacao+'.';
+ const hand='Resumo: '+f.relato+' | Serviço: '+f.servico+' | Evidências do N1: '+(rows.map(r=>r.q.rotulo+' = '+(r.resp||'já no relato')+' ('+ST[r.st]+')').join('; ')||'nenhuma')+' | Alçada: o N1 não acessa servidores nem altera configurações. | Suspeita: '+f.hipotese+' (confiança '+f.confianca+') | Próximo passo: '+f.proxima_verificacao+' | Retorno ao cliente: '+f.proxima_atualizacao+'.';
+ ATEND.push({f:{...f},caso:c,rows,n:S.n,conf:S.conf,aten:[...S.aten],msg,hand});
+ say('a',msg);say('a','Chamado registrado com '+S.n+' perguntas.');S.step='fim';chips(['➕ Novo atendimento','📄 Gerar PDF','👋 Encerrar'])}
+function enviar(raw){const t0=String(raw).trim();if(!t0)return;const L=limpar(t0),t=L.t;say('c',t);chips([]);
+ if(L.hit)say('a','O suporte nunca pede senha, token, código ou CPF. Removi só o trecho sensível e segui com o resto.');
+ const s=S.step,f=S.f;
+ if(s==='nome'){f.nome=t;S.step='contato';say('a','Prazer, '+t+'! Qual é o seu setor e um contato (ramal ou e-mail, pode ser fictício)?')}
+ else if(s==='contato'){f.contato=t;S.step='relato';say('a','Como posso ajudar? Quanto mais detalhe, menos perguntas eu preciso fazer.');chips(KB.casos.map(c=>c.sintoma||c.titulo))}
+ else if(s==='relato'){f.relato=t;identificar(t)}
+ else if(s==='tri'){const c=KB.casos.find(c=>norm(c.titulo)===norm(t));if(c){S.caso=c;iniciar()}else identificar(f.relato+' '+t)}
+ else if(s==='perg'){const i=S.cur,q=S.caso.perguntas_chave[i];
+  const st=/nao sei|nao tenho certeza/.test(norm(t))?'nao':has(t,q.sinais_que_contradizem)?'div':has(t,q.sinais_que_confirmam)?'apoia':'nao';
+  S.r[i]={st,resp:t};if(st==='div')say('a','Isso não bate com a minha primeira suspeita; vou anotar como ponto de atenção.');perguntar()}
+ else if(s==='imp'){f.impacto=t;concluir()}
+ else if(s==='conf'){if(/corrig/.test(norm(t)))opcCorr();else if(/confere/.test(norm(t)))registrar();else{say('a','Toque em “✓ Confere” ou “✏️ Corrigir uma resposta”.');chips(['✓ Confere','✏️ Corrigir uma resposta'])}}
+ else if(s==='corr'){const i=S.caso.perguntas_chave.findIndex(q=>norm(q.rotulo)===norm(t));if(i<0||S.r[i].st==='veio'){say('a','Toque em uma das opções.');opcCorr()}else{S.r[i]={st:'aguardando',resp:''};perguntar()}}
+ else if(s==='fim'){if(/novo/.test(norm(t)))novo();else if(/pdf/.test(norm(t)))gerarPDF();else{say('a','Atendimento encerrado. Obrigado!')}}
+ render()}
+function render(){
+ const c=S.caso,p1=$('#p1');p1.replaceChildren();
+ p1.append(el('b','Hipótese atual'),el('p',c?c.hipotese_n1:'Ainda sem hipótese: aguardando o relato.'));
+ const cf=(c&&S.r.some(x=>x.st!=='aguardando'&&x.st!=='perguntando'))?conf():'—';
+ const bar=el('div',null,'bar'),i=el('i');i.style.width=({Baixa:'33%',Média:'66%',Alta:'100%'})[cf]||'0';bar.append(i);
+ p1.append(el('b','Confiança: '+cf),bar);
+ if(c)c.perguntas_chave.forEach((q,k)=>{const x=S.r[k]||{st:'aguardando'},d=el('div',null,'q '+x.st);
+  d.append(el('b',q.rotulo+' — '+ST[x.st]),el('small','Por que perguntar: '+q.por_que));if(x.resp)d.append(el('small','Resposta: '+x.resp));p1.append(d)});
+ const p2=$('#p2');p2.replaceChildren();
+ FIC.forEach(([k,l])=>{const v=S.f[k],d=el('div',null,'fl'+(v?' ok':'')+(CUR[S.step]===k?' cur':''));d.append(el('small',l),el('span',v||'—'));p2.append(d)});
+ const p3=$('#p3');p3.replaceChildren();p3.append(el('p','Casos na base: '+KB.casos.length+' · Última atualização: '+new Date(KB.atualizado_em).toLocaleString('pt-BR')));
+ KB.casos.forEach(k=>{const d=el('div',null,'q');d.append(el('b',k.id+' — '+k.titulo),el('small','Versão '+(k.versao||1)+' · Origem: '+(k.origem||'—')));p3.append(d)})}
+function tb(head,rows){const t=el('table'),h=el('tr');head.forEach(x=>h.append(el('th',x)));t.append(h);
+ rows.forEach(r=>{const tr=el('tr');r.forEach(x=>tr.append(el('td',x)));t.append(tr)});return t}
+function gerarPDF(){if(!ATEND.length){say('a','Ainda não há atendimento registrado para o relatório.');return}
+ const R=$('#rel');R.replaceChildren();const top=el('div'),b=el('h1',null);
+ b.append(el('span','S'),el('span','C'),document.createTextNode('TEC · Relatório de atendimento'));b.firstChild.style.color='#4f8f1a';b.children[1].style.color='#e3262d';
+ top.append(b,el('p',AGENTE+' · '+new Date().toLocaleString('pt-BR')+' · Aluno: '+ALUNO+' · Mentor: '+MENTOR));
+ top.append(tb(['#','Chamado','Cliente','Caso','Prioridade','Confiança','Perguntas'],ATEND.map((a,i)=>[i+1,a.f.chamado,a.f.nome,a.caso.titulo,a.f.prioridade,a.conf,a.n])));
+ top.className='pg';R.append(top);
+ ATEND.forEach((a,k)=>{const d=el('div',null,'pg');d.append(el('h2','Atendimento '+(k+1)+' — '+a.f.chamado+' — '+a.caso.titulo),tb(['Campo','Valor'],FIC.map(([x,l])=>[l,a.f[x]||'—'])),
+  el('h3','Raciocínio'),tb(['Informação','Por que perguntar','Resposta do cliente','Leitura'],a.rows.map(r=>[r.q.rotulo,r.q.por_que,r.resp||'(já veio no relato)',ST[r.st]])),
+  el('h3','Conclusão do N1'),el('p',a.f.hipotese+' Confiança: '+a.conf+'.'+(a.aten.length?' Pontos de atenção: '+a.aten.join(' '):'')),
+  el('h3','Mensagem enviada ao cliente'),el('p',a.msg),el('h3','Nota interna de handoff N1 → N2'),el('p',a.hand),
+  el('h3','Desfecho da base'),tb(['Item','Registro'],[['Causa raiz',a.caso.causa_raiz||'—'],['Solução',a.caso.solucao||'—'],['Artigo de conhecimento',a.caso.artigo_kb||'—']]));
+  if(k===ATEND.length-1)d.append(el('p','Todos os dados deste relatório são fictícios.'));R.append(d)});
+ say('a','Na janela de impressão, escolha “Salvar como PDF”.');setTimeout(()=>window.print(),100)}
+function backup(){const a=el('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(KB,null,2)],{type:'application/json'}));
+ a.download='conhecimento-agente-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),800)}
+const ler=f=>new Promise((ok,er)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=er;r.readAsText(f)});
+async function pdfTexto(f){if(typeof pdfjsLib==='undefined')throw new Error('A leitura de PDF precisa do pdf.js (internet).');
+ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+ const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let out='';
+ for(let p=1;p<=d.numPages;p++){const tc=await(await d.getPage(p)).getTextContent(),ln={};
+  tc.items.forEach(it=>{const y=Math.round(it.transform[5]);(ln[y]=ln[y]||[]).push([it.transform[4],it.str])});
+  Object.keys(ln).map(Number).sort((a,b)=>b-a).forEach(y=>{out+=ln[y].sort((a,b)=>a[0]-b[0]).map(x=>x[1]).join(' ').trim()+'\n'})}
+ return out}
+const PADRAO=[['abrangencia','Abrangência','Mais pessoas têm o mesmo problema ou só você?'],['comparacao','Teste de comparação','Em outro computador ou aparelho funciona?'],['mudanca','Mudança recente','Mudou alguma coisa recentemente?'],['outros_sistemas','Outros sistemas','Os outros sistemas funcionam normalmente?']];
+const VAZIAS=new Set('de do da dos das que para com por uma uns num nao nos sem sobre ao em no na o a e os as um'.split(' '));
+function rascunho(t,nome){const L=t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const get=lb=>{for(let i=0;i<L.length;i++){if(norm(L[i]).startsWith(norm(lb))){const v=L[i].slice(lb.length).replace(/^\s*[:—–-]\s*/,'').trim();return v||L[i+1]||''}}return ''};
+ const tl=L.find(l=>/^INC-\d+\s*[—–-]\s*.+/.test(l))||'',id=(tl.match(/INC-\d+/)||[''])[0],titulo=tl.replace(/^INC-\d+\s*[—–-]\s*/,''),sint=get('Sintoma');
+ const kw=[...new Set(norm(titulo+' '+sint).split(/[^a-z0-9]+/).filter(w=>w.length>3&&!VAZIAS.has(w)))].slice(0,10);
+ const qs=[...t.matchAll(/[“"]([^”"]{8,}\?)[”"]/g)].map(m=>m[1]);
+ const pq=(qs.length>=3?qs.map((q,i)=>['q'+(i+1),'Pergunta '+(i+1),q]):PADRAO).map(([c,r,q])=>({campo:c,rotulo:r,pergunta:q,por_que:'Pergunta registrada no relatório.',resposta_tipica:'Sim.',sinais_que_confirmam:['sim'],sinais_que_contradizem:['não']}));
+ const tlh=L.map(l=>l.match(/^(N[123]|Solu[cç][aã]o)\s+(\d{1,2}:\d{2})\s+(.+)$/)).filter(Boolean).map(m=>({nivel:m[1],hora:m[2],acao:m[3],registro:''}));
+ const n12=L.filter(l=>/^N[12]\b/.test(l)).slice(-2).join(' ');
+ return{id,versao:1,origem:nome+' (importado em '+new Date().toLocaleDateString('pt-BR')+')',titulo,servico:get('Serviço'),tipo:get('Tipo / prioridade'),sintoma:sint,palavras_chave:kw,perguntas_chave:pq,hipotese_n1:n12||'A revisar: '+get('Causa raiz'),contorno:(L.find(l=>/contorno/i.test(l))||''),causa_raiz:get('Causa raiz'),solucao:get('Solução'),status_final:get('Status final'),evidencias:L.filter(l=>l.startsWith('>')),linha_do_tempo:tlh}}
+function previa(d){const ex=KB.casos.find(c=>c.id===d.id),box=$('#pvc');box.replaceChildren();
+ box.append(el('h3',ex?'Atualização do caso '+d.id+' (versão '+(ex.versao||1)+' → '+((ex.versao||1)+1)+')':'Novo caso'),el('p','Confira os campos: a leitura automática pode errar.'));
+ const F=[['id','ID'],['titulo','Título'],['sintoma','Sintoma'],['hipotese_n1','Hipótese N1'],['contorno','Contorno'],['causa_raiz','Causa raiz'],['solucao','Solução'],['palavras_chave','Palavras-chave (separadas por vírgula)']],inp={};
+ F.forEach(([k,l])=>{const i=k==='id'||k==='titulo'?el('input'):el('textarea');if(k==='palavras_chave')i.value=(d[k]||[]).join(', ');else i.value=d[k]||'';i.rows=2;inp[k]=i;box.append(el('label',l),i)});
+ const s=el('button','Salvar na base'),c=el('button','Cancelar');s.type=c.type='button';s.style.margin='12px 8px 0 0';
+ c.onclick=()=>{$('#pv').style.display='none'};
+ s.onclick=()=>{const v={};F.forEach(([k])=>v[k]=inp[k].value.trim());if(!v.id||!v.titulo){aviso('Informe ID e título.');return}
+  const kw=v.palavras_chave.split(',').map(x=>x.trim()).filter(Boolean),old=KB.casos.find(x=>x.id===v.id);
+  const caso={...d,...v,palavras_chave:kw.length?kw:(old?old.palavras_chave:[]),versao:old?(old.versao||1)+1:1};
+  if(old){caso.perguntas_chave=old.perguntas_chave;if(!d.servico)caso.servico=old.servico;caso.tipo=old.tipo;caso.categoria=old.categoria;caso.prioridade=old.prioridade;caso.justificativa_prioridade=old.justificativa_prioridade;caso.encaminhar_para=old.encaminhar_para;caso.proxima_verificacao=old.proxima_verificacao;caso.pergunta_impacto=old.pergunta_impacto;caso.artigo_kb=old.artigo_kb;caso.validacao=old.validacao;caso.sintese_niveis=old.sintese_niveis;if(!(d.linha_do_tempo||[]).length)caso.linha_do_tempo=old.linha_do_tempo;if(!(d.evidencias||[]).length)caso.evidencias=old.evidencias;
+   KB.casos[KB.casos.findIndex(x=>x.id===v.id)]=caso}else KB.casos.push(caso);
+  KB.atualizado_em=new Date().toISOString();salvar();$('#pv').style.display='none';aviso('Caso '+v.id+' salvo na base (versão '+caso.versao+').');render()};
+ box.append(s,c);$('#pv').style.display='flex'}
+$('#fu').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+ try{let t;if(/\.pdf$/i.test(f.name))t=await pdfTexto(f);else t=await ler(f);
+  if(/\.json$/i.test(f.name)){const o=JSON.parse(t);if(Array.isArray(o.casos)){aviso(mesclar(o.casos)+' caso(s) atualizado(s)/adicionado(s).');render()}else if(valid(o))previa(o);else aviso('JSON sem o formato esperado.')}
+  else{const d=rascunho(t,f.name);if(!d.id&&!d.titulo)aviso('Não encontrei o título (INC-0000 — Título) no relatório. Confira o arquivo.');previa(d)}}
+ catch(x){aviso('Não foi possível ler o arquivo: '+x.message)}};
+$('#fr').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+ try{const o=JSON.parse(await ler(f));if(!Array.isArray(o.casos))throw new Error('formato inválido');const v=o.casos.filter(valid),inv=o.casos.length-v.length;let n;
+  if(confirm('Substituir a base atual?\nOK = substituir · Cancelar = mesclar')){KB={...o,casos:v};salvar();n=v.length}else n=mesclar(v);
+  aviso(n+' caso(s) entraram'+(inv?' · '+inv+' inválido(s) ignorado(s)':'')+'.');render()}
+ catch(x){aviso('Backup inválido: '+x.message)}};
+$('#f').onsubmit=e=>{e.preventDefault();const v=$('#tx').value;$('#tx').value='';enviar(v)};
+$('#bN').onclick=novo;$('#bP').onclick=gerarPDF;$('#bB').onclick=backup;$('#bR').onclick=()=>$('#fr').click();$('#bU').onclick=()=>$('#fu').click();
+$('#fm').onclick=()=>{const r=document.documentElement.style;r.setProperty('--fs',Math.max(.8,(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||1)-.1))};
+$('#fp').onclick=()=>{const r=document.documentElement.style;r.setProperty('--fs',Math.min(1.6,(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||1)+.1))};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.pane').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.p).classList.add('on')});
+document.querySelectorAll('#mt button').forEach(b=>b.onclick=()=>{$('#main').dataset.v=b.dataset.v});
+carregar();novo();
+</script></body></html>
